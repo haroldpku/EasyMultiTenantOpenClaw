@@ -1,6 +1,8 @@
-<p align="right">🌐 <strong>English</strong> · <a href="README.zh.md">中文</a></p>
-
-# EasyMultiTenantOpenClaw
+<table width="100%"><tr>
+<td width="22%"></td>
+<td align="center"><h1>EasyMultiTenantOpenClaw</h1></td>
+<td width="22%" align="right"><sub>🌐 <strong>English</strong> · <a href="README.zh.md">中文</a></sub></td>
+</tr></table>
 
 <p align="center">
   <strong>Turn <a href="https://openclaw.ai">OpenClaw</a> into a multi-tenant backend for <a href="https://openwebui.com">OpenWebUI</a> — without modifying either.</strong>
