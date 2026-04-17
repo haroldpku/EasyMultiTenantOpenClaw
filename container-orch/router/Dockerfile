@@ -15,4 +15,4 @@ EXPOSE 18888
 ENV ROUTER_PORT=18888 \
     TENANTS_FILE=/app/tenants.json
 
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "18888"]
+CMD ["sh", "-c", "python -m uvicorn main:app --host 0.0.0.0 --port ${ROUTER_PORT:-18888}"]
