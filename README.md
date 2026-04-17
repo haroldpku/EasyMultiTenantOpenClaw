@@ -151,9 +151,9 @@ After user A creates a cron job or saves a credential:
 
 ## Contributing / 贡献
 
-Issues and PRs welcome. Mention `@claude` in an issue body or title and the [Claude Code action](.github/workflows/claude.yml) will read the repo and either reply inline or open a PR.
+Issues and PRs welcome. Mention `@claude` in an issue body or title and the [Claude Code action](.github/workflows/claude.yml) will read the repo and either reply inline or open a PR. See [setup guide](.github/CLAUDE-ACTION-SETUP.md) for the required secrets (supports third-party Anthropic proxies).
 
-欢迎提 issue / PR。在 issue 标题或正文里 `@claude`，[Claude Code action](.github/workflows/claude.yml) 会读取仓库内容，直接回复或开 PR。
+欢迎提 issue / PR。在 issue 标题或正文里 `@claude`，[Claude Code action](.github/workflows/claude.yml) 会读取仓库内容，直接回复或开 PR。配置说明（含第三方代理支持）见 [setup guide](.github/CLAUDE-ACTION-SETUP.md)。
 
 ## License
 
