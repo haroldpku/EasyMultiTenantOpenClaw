@@ -1,0 +1,6 @@
+volumes/
+router/.venv/
+router/__pycache__/
+scripts/
+*.log
+.DS_Store

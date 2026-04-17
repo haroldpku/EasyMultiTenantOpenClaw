@@ -1,0 +1,13 @@
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.DS_Store
+
+# Per-tenant runtime data written by container-orch at runtime
+container-orch/volumes/
+container-orch/tenants.json
+
+# Bridge runtime artefacts
+openclaw-workspaces/
+
+*.log

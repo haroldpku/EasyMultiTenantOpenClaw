@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "tenants": {
+    "<openwebui-user-id-uuid>": {
+      "port": 18800,
+      "profile": "demo01",
+      "container": "openclaw-demo01",
+      "gateway_token": "<32-char-hex-token-from-container-first-boot>",
+      "openwebui_model_id": "demo01-agent"
+    }
+  }
+}

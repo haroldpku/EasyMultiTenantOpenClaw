@@ -1,0 +1,43 @@
+# 3 demo tenant containers — per-user OpenClaw isolation POC.
+#
+# Each container is a full OpenClaw gateway with its own:
+#   - cron scheduler
+#   - credentials store
+#   - exec-approvals
+#   - skill runtime / workspace
+#
+# First boot auto-generates openclaw.json (via start-openclaw.sh).
+# The provisioning script reads the generated token from docker logs.
+#
+# Usage:
+#   docker compose up -d
+#   # wait ~5s for all 3 gateways to init
+#   ./scripts/provision_demo_tenants.sh
+
+services:
+  openclaw-demo01:
+    image: openclaw:base
+    container_name: openclaw-demo01
+    ports:
+      - "127.0.0.1:18800:18789"
+    volumes:
+      - ./volumes/demo01:/data
+    restart: unless-stopped
+
+  openclaw-demo02:
+    image: openclaw:base
+    container_name: openclaw-demo02
+    ports:
+      - "127.0.0.1:18801:18789"
+    volumes:
+      - ./volumes/demo02:/data
+    restart: unless-stopped
+
+  openclaw-demo03:
+    image: openclaw:base
+    container_name: openclaw-demo03
+    ports:
+      - "127.0.0.1:18802:18789"
+    volumes:
+      - ./volumes/demo03:/data
+    restart: unless-stopped
