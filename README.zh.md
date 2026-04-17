@@ -1,8 +1,6 @@
-<table width="100%"><tr>
-<td width="22%"></td>
-<td align="center"><h1>EasyMultiTenantOpenClaw</h1></td>
-<td width="22%" align="right"><sub>🌐 <a href="README.md">English</a> · <strong>中文</strong></sub></td>
-</tr></table>
+<p align="right">🌐 <a href="README.md">English</a> · <strong>中文</strong></p>
+
+# EasyMultiTenantOpenClaw
 
 <p align="center">
   <strong>把 <a href="https://openclaw.ai">OpenClaw</a> 变成 <a href="https://openwebui.com">OpenWebUI</a> 的多租户后端 —— 两端代码一行不改。</strong>
