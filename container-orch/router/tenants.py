@@ -18,10 +18,17 @@ Schema:
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
-TENANTS_FILE = Path(__file__).resolve().parent.parent / "tenants.json"
+# Default to ../tenants.json relative to this file (host-python dev mode).
+# In the container image we bind-mount the tenants.json at /app/tenants.json,
+# so override via env var.
+TENANTS_FILE = Path(
+    os.getenv("TENANTS_FILE")
+    or Path(__file__).resolve().parent.parent / "tenants.json"
+)
 
 _cache: dict | None = None
 _mtime: float = 0

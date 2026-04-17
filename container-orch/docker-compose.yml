@@ -1,20 +1,29 @@
-# 3 demo tenant containers — per-user OpenClaw isolation POC.
+# 3 demo tenant containers + router — per-user OpenClaw isolation POC.
 #
-# Each container is a full OpenClaw gateway with its own:
-#   - cron scheduler
-#   - credentials store
-#   - exec-approvals
-#   - skill runtime / workspace
+# Each openclaw-demoXX container is a full OpenClaw gateway with its own
+# cron / credentials / exec-approvals / skill runtime.  First boot
+# auto-generates /data/openclaw.json (see start-openclaw.sh).
 #
-# First boot auto-generates openclaw.json (via start-openclaw.sh).
-# The provisioning script reads the generated token from docker logs.
+# The router reads tenants.json at runtime and dispatches each upstream
+# request by X-OpenWebUI-User-Id header.  It talks to each tenant over
+# the compose-internal network using container name + port 18789.
 #
-# Usage:
-#   docker compose up -d
-#   # wait ~5s for all 3 gateways to init
-#   ./scripts/provision_demo_tenants.sh
+# OpenWebUI itself is *not* in this compose — it runs as a separate
+# container.  The top-level install.sh starts it with the right env
+# vars and points its `openclaw-isolated` connection at
+# http://host.docker.internal:18888/v1 (the router's exposed port).
 
 services:
+  router:
+    build: ./router
+    image: emt-router:latest
+    container_name: emt-router
+    ports:
+      - "127.0.0.1:18888:18888"
+    volumes:
+      - ./tenants.json:/app/tenants.json:ro
+    restart: unless-stopped
+
   openclaw-demo01:
     image: openclaw:base
     container_name: openclaw-demo01

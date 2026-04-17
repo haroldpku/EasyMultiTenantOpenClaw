@@ -190,7 +190,7 @@ def main():
     for d in DEMOS:
         print(f"  {d['email']} / {d['password']}  →  model={d['name']}-agent  →  container={d['container']}:{d['port']}")
 
-    print("\nDONE. Login to http://127.0.0.1:9798 with any demo account.")
+    print(f"\nDONE. Login to {OPENWEBUI} with any demo account.")
 
 
 if __name__ == "__main__":

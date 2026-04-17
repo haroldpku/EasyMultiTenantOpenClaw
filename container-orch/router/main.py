@@ -63,12 +63,23 @@ async def models(request: Request):
     if not all_t:
         return JSONResponse(content={"object": "list", "data": []})
     first = next(iter(all_t.values()))
-    port, token = first["port"], first["gateway_token"]
     resp = await _client.get(
-        f"http://127.0.0.1:{port}/v1/models",
-        headers={"Authorization": f"Bearer {token}"},
+        _upstream(first, "/v1/models"),
+        headers={"Authorization": f"Bearer {first['gateway_token']}"},
     )
     return JSONResponse(content=resp.json(), status_code=resp.status_code)
+
+
+def _upstream(tenant: dict, path: str) -> str:
+    """Upstream URL for a tenant.
+
+    Router runs inside docker-compose network, so every tenant container
+    is reachable via its service/container name on the internal port
+    (18789). The `port` field in tenants.json is the host-side mapped
+    port used for debugging from outside the compose network.
+    """
+    container = tenant["container"]
+    return f"http://{container}:18789{path}"
 
 
 @app.api_route("/v1/{rest:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
@@ -90,9 +101,8 @@ async def proxy(rest: str, request: Request):
             content={"error": "no tenant for this user"},
         )
 
-    port = tenant["port"]
     token = tenant["gateway_token"]
-    url = f"http://127.0.0.1:{port}/v1/{rest}"
+    url = _upstream(tenant, f"/v1/{rest}")
 
     # 3. Build forwarded headers (replace auth, drop hop-by-hop)
     fwd_headers = {}
@@ -106,7 +116,7 @@ async def proxy(rest: str, request: Request):
     body = await request.body()
     method = request.method
 
-    log.info("→ %s /v1/%s  user=%s  tenant=%s:%s", method, rest, user_id[:8], tenant["container"], port)
+    log.info("→ %s /v1/%s  user=%s  tenant=%s", method, rest, user_id[:8], tenant["container"])
 
     # 4. Forward — detect streaming by Accept or body hints
     wants_stream = (

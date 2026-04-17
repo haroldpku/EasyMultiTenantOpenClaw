@@ -90,34 +90,70 @@ One image (`openclaw:base`), N containers, N volumes. Nothing crosses the contai
 
 ## Quick start / 快速开始
 
-Prereqs: Docker, an OpenWebUI instance on `:9798`, admin account.
-前置：Docker、运行中的 OpenWebUI（端口 9798）、管理员账号。
+One line on a clean Ubuntu 22.04 / 24.04 host. Installs everything — OpenWebUI, the tenant image, 3 isolated OpenClaw containers, the router, and 3 demo users fully wired up.
+
+干净的 Ubuntu 22.04 / 24.04 上一条命令。从头装齐 —— OpenWebUI、租户镜像、3 个隔离容器、router、3 个演示用户绑定全部就位。
 
 ```bash
-git clone https://github.com/haroldpku/EasyMultiTenantOpenClaw.git
-cd EasyMultiTenantOpenClaw/container-orch
-
-# 1. Build the tenant image / 构建租户镜像
-docker build -t openclaw:base .
-
-# 2. Start 3 demo tenants (ports 18800–18802) / 启动 3 个演示租户
-docker compose up -d
-
-# 3. Run the router / 启动路由
-cd router && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python main.py &
-
-# 4. Restart open-webui with ENABLE_FORWARD_USER_INFO_HEADERS=true
-#    让 OpenWebUI 在转发请求时带上用户身份 header
-
-# 5. Provision tenants end-to-end / 一键批量开通 3 个演示员工
-export OWUI_ADMIN_EMAIL=admin@example.com
-export OWUI_ADMIN_PASSWORD=your-password
-python3 ../scripts/provision_demo_tenants.py
+bash <(curl -fsSL https://raw.githubusercontent.com/haroldpku/EasyMultiTenantOpenClaw/main/install.sh)
 ```
 
-Three demo accounts (`iso-demo01@demo.local` / `Demo!Pass01`, …) are created in OpenWebUI, each locked to its own isolated container.
+The installer asks for three things interactively — pre-set them as env vars to skip the prompts (useful in CI):
+安装器会交互询问三样信息；可用环境变量预置来免交互（适合 CI）：
+
+```bash
+ADMIN_EMAIL=admin@example.com \
+ADMIN_PASSWORD=your-password \
+DASHSCOPE_KEY=sk-xxxxxxxx \
+bash <(curl -fsSL https://raw.githubusercontent.com/haroldpku/EasyMultiTenantOpenClaw/main/install.sh)
+```
+
+What happens in ~3 minutes / 大约 3 分钟内完成:
+
+| Step | Action |
+|---|---|
+| 1 | Preflight: docker, git, curl, python3 都在吗 |
+| 2 | Clone repo to `~/EasyMultiTenantOpenClaw` |
+| 3 | Prompt for admin email / password / Dashscope API key |
+| 4 | Start OpenWebUI container on `:9798` with `ENABLE_FORWARD_USER_INFO_HEADERS=true` |
+| 5 | Register admin via `/api/v1/auths/signup` |
+| 6 | Build `openclaw:base` (~1.7 GB, once) |
+| 7 | `docker compose up -d` — router + 3 tenant containers |
+| 8 | Inject Dashscope provider config into each tenant volume + provision users |
+| 9 | Print a summary with the 3 demo account credentials |
+
+Three demo accounts (`iso-demo01@demo.local` / `Demo!Pass01`, …) get created in OpenWebUI, each locked to its own isolated container.
 自动创建 3 个演示账号，每人只能访问自己的专属容器。
+
+<details>
+<summary>Manual install steps (fallback) / 手动安装步骤（备用）</summary>
+
+If you don't want to run the installer as a whole, here are the same steps as individual commands:
+
+```bash
+git clone https://github.com/haroldpku/EasyMultiTenantOpenClaw.git ~/EasyMultiTenantOpenClaw
+cd ~/EasyMultiTenantOpenClaw/container-orch
+
+# start OpenWebUI with the right env (if you don't already have one)
+docker run -d --name open-webui -p 9798:8080 \
+  -v open-webui:/app/backend/data \
+  --add-host host.docker.internal:host-gateway \
+  -e WEBUI_AUTH=true -e ENABLE_OPENAI_API=true \
+  -e ENABLE_FORWARD_USER_INFO_HEADERS=true \
+  --restart unless-stopped ghcr.io/open-webui/open-webui:main
+
+# build + up
+docker build -t openclaw:base .
+echo '{"version":1,"tenants":{}}' > tenants.json   # placeholder; provision will fill
+mkdir -p volumes/demo01 volumes/demo02 volumes/demo03
+docker compose up -d --build
+
+# provision
+export OWUI_ADMIN_EMAIL=admin@example.com OWUI_ADMIN_PASSWORD=pw
+python3 scripts/provision_demo_tenants.py
+```
+
+</details>
 
 ## Components / 组件
 
