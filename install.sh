@@ -215,13 +215,15 @@ step7_compose_up() {
     info "waiting for all tenant gateways to become ready..."
     for i in $(seq 1 "$TENANT_COUNT"); do
         local c="openclaw-demo$(printf '%02d' "$i")"
+        local port=$((18799 + i))   # demo01→18800, demo02→18801, demo03→18802
         local tries=0
-        until docker logs "$c" 2>&1 | grep -q "\[gateway\] ready"; do
+        until curl -s --max-time 2 -o /dev/null \
+                "http://127.0.0.1:$port/v1/models" 2>/dev/null; do
             sleep 2
             tries=$((tries + 1))
-            [ $tries -ge 60 ] && die "$c didn't report ready in 120s (docker logs $c)"
+            [ $tries -ge 60 ] && die "$c didn't become reachable in 120s (check: docker logs $c)"
         done
-        ok "$c ready"
+        ok "$c ready (HTTP gateway on :$port)"
     done
 }
 
@@ -255,9 +257,10 @@ PY
 
     info "waiting for tenants to re-ready..."
     for i in $(seq 1 "$TENANT_COUNT"); do
-        local c="openclaw-demo$(printf '%02d' "$i")"
+        local port=$((18799 + i))   # demo01→18800, demo02→18801, demo03→18802
         local tries=0
-        until [ "$(docker logs "$c" 2>&1 | grep -c '\[gateway\] ready')" -ge 2 ]; do
+        until curl -s --max-time 2 -o /dev/null \
+                "http://127.0.0.1:$port/v1/models" 2>/dev/null; do
             sleep 2
             tries=$((tries + 1))
             [ $tries -ge 30 ] && break
